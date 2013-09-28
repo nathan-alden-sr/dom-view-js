@@ -1,4 +1,4 @@
-// DOMView.js 1.0.0
+// DOMView.js 1.1.0
 
 // Created by Nathan Alden, Sr.
 // http://projects.nathanalden.com
@@ -27,6 +27,12 @@
 			}
 
 			var propertyValue = object[property];
+			
+			if (propertyValue === undefined || propertyValue === null) {
+				childSelector[property] = propertyValue;
+				continue;
+			}
+
 			var propertyValueIsString = typeof propertyValue === "string";
 			var propertyValueIsJQueryObject = propertyValue instanceof jQuery;
 			var propertyValueIsFunction = typeof propertyValue === "function";
@@ -63,7 +69,9 @@
 			} else if (propertyValueIsObject) {
 				childSelector[property] = wrap(childSelector, propertyValue);
 			} else {
-				throw "Unknown property value for property '" + property + "'";
+				// Copy, without modification, property values whose data types are unknown
+
+				childSelector[property] = propertyValue;
 			}
 		}
 
