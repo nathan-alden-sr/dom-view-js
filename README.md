@@ -188,7 +188,7 @@ DomView({
 });
 ```
 
-The ```context``` parameter is useful for accessing sibling jQuery objects. If you need to access other objects in the hierarchy, use the captured ```DomView``` function return value:
+The ```context``` parameter is useful for accessing sibling jQuery objects. If we need to access other objects in the hierarchy, we can use the captured ```DomView``` function return value:
 
 ```javascript
 var view = DomView({
