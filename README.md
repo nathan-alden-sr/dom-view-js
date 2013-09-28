@@ -257,6 +257,17 @@ DomView({
 	}
 });
 ```
+### Other custom property values
+
+Any property values that don't meet the above criteria are copied into the resultant object.
+
+```javascript
+DomView({
+	selector: ".container",
+	foo: 1,
+	pi: 3.141592654
+});
+```
 
 ## That's it!
 
