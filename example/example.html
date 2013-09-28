@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en-US">
+	<head>
+		<meta charset="UTF-8">
+		<title>DomView.js Example</title>
+		<link rel="stylesheet" href="example.css">
+	</head>
+	<body>
+		<main>
+			<h1>DomView.js Example</h1>
+			<section class="links">
+				<h2>Links</h2>
+				<a href="https://github.com/NathanAlden" class="more-projects">More projects by Nathan Alden, Sr.</a>
+			</section>
+			<section class="demographic-information">
+				<h2>Demographic Information</h2>
+				<ul>
+					<li>
+						<label for="firstName">First name <span class="first-name-changed">(changed)</span></label>
+						<input type="text" id="firstName" class="first-name">
+					</li>
+					<li>
+						<label for="lastName">Last name <span class="last-name-changed">(changed)</span></label>
+						<input type="text" id="lastName" class="last-name">
+					</li>
+					<li>
+						<label>Gender</label>
+						<span class="radio-container"><input type="radio" name="gender" id="male" class="male"><label for="male">Male</label></span>
+						<span class="radio-container"><input type="radio" name="gender" id="female" class="female"><label for="female">Female</label></span>
+					</li>
+				</ul>
+			</section>
+			<section class="cool-tools">
+				<h2>Cool Tools</h2>
+				<input type="button" value="Add a Colored Box" class="add-box">
+				<label>Boxes</label>
+				<div class="boxes"></div>
+			</section>
+			<section class="reset">
+				<h2>Reset</h2>
+				<input type="button" value="Reset Everything" class="reset-everything">
+			</section>
+		</main>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script src="domview.js"></script>
+		<script src="example.js"></script>
+	</body>
+</html>
