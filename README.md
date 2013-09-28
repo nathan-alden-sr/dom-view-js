@@ -15,10 +15,10 @@ Effective use of jQuery requires that we cache jQuery objects in variables when 
 		var $age = $form.find(".age");
 		var $radio = $form.find("input[type='radio']");
 		
-		$button.click(function (e) {
+		$button.click(function () {
 		});
 		
-		$form.submit(function (e) {
+		$form.submit(function () {
 		});
 	});
 })(jQuery);
@@ -58,14 +58,14 @@ var view = DomView({
 	selector: ".container",
 	button: {
 		selector: "button",
-		_click: function (context, e) {
+		_click: function () {
 		}
 	},
 	label: "label",
 	name: ".name",
 	form: {
 		selector: "form",
-		_submit: function (context, e) {
+		_submit: function () {
 		},
 		age: ".age",
 		radio: "input[type='radio']"
@@ -138,7 +138,7 @@ var $age = $form.find(".age");
 var $radio = $form.find("input[type='radio']");
 ```
 
-Note how each property's value is a string selector. String property values are treated as jQuery selectors. These selectors are passed to the ```find``` function of the parent jQuery object. Other selector objects and functions may be used as values (see below).
+Note how each property's value is a string selector. String property values are treated as jQuery selectors. These selectors are passed to the ```find``` function of the parent jQuery object. Other selector objects, custom objects and functions may be used as values (see below).
 
 The ```DomView``` function returns a normal jQuery object constructed with the ```.container``` selector. To each jQuery object, DomView adds properties that store jQuery objects created from selector properties (see the age example above). Other values besides jQuery selectors may also be used (see below).
 
@@ -151,7 +151,7 @@ DomView({
 	selector: ".container",
 	button: {
 		selector: "input[type='button']",
-		_click: function (context, e) {
+		_click: function () {
 		}
 	}
 });
@@ -198,7 +198,7 @@ var view = DomView({
 		selector: "form",
 		age: {
 			selector: ".age",
-			_click: function (context, e) {
+			_click: function () {
 				console.log(view.button); // Outputs the jQuery object for input[type='button']
 			}
 		}
