@@ -1,5 +1,11 @@
 # DOMView.js
 
+Table of contents:
+* [Introduction](#tired-of-flat-unstructured-jquery)
+* [Getting Started](#getting-started-with-domviewjs)
+* [Alternatives](#alternatives)
+* [Criticism](#criticism)
+
 ## Tired of flat, unstructured jQuery?
 
 Effective use of jQuery requires that we cache jQuery objects in variables when possible, like this:
