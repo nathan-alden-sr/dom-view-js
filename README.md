@@ -29,7 +29,7 @@ Here's the markup that the above JavaScript represents:
 ```html
 <html>
 	<body>
-		<div class=".container">
+		<div class="container">
 			<input type="button">
 			<label></label>
 			<span class="name"></span>
@@ -257,6 +257,108 @@ DomView({
 	}
 });
 ```
+### Other custom property values
+
+Any property values that don't meet the above criteria are copied into the resultant object.
+
+```javascript
+DomView({
+	selector: ".container",
+	foo: 1,
+	pi: 3.141592654
+});
+```
+
+## Alternatives
+
+### kinghfb's suggestion
+
+Helpful Redditor kinghfb suggested that the nesting technique can be accomplished with raw jQuery:
+
+```javascript
+var container = $(".container"),
+	form = container.find("form")
+		.submit(function () { }),
+		age = form.find(".age");
+```
+
+This does visually represent the hierarchical nature of the DOM in JavaScript. However, there are a few notable differences:
+
+1. The variables must all be named differently because they are declared in the same scope, whereas with DOMView.js, property names are unique only to their containing object.
+2. Inline event handlers must be declared before additional "nested" variables, meaning they won't have access to objects on the same indent level.
+3. There is no hierarchical structure in memory, whereas with DOMView.js one can simply write the resultant object to the console and use the browser's developer tools to inspect the full hierarchy.
+4. There is no view object to be captured from within jQuery event handlers.
+
+For point #4, consider that the following code cannot be written solely using kinghfb's suggestion:
+
+```javascript
+var container = DomView({
+	selector: ".container",
+	form: {
+		selector: "form",
+		_submit: function () {
+			container.button.prop("disabled", true);
+		}
+	},
+	button: {
+		selector: ".button",
+		_click: function (context) {
+			context.form[0].submit();
+		}
+	}
+});
+```
+
+Written with raw jQuery, here's what we'd have:
+
+```javascript
+var container = $(".container"),
+	form = container.find("form"),
+		button = form.find(".button")
+			.click(function () {
+				form[0].submit();
+			});
+
+form.submit(function () {
+	button.prop("disabled", true);
+});
+```
+
+Note that using raw jQuery leads to the hierarchy being broken in this case.
+
+JavaScript often requires circular dependencies in order to achieve interesting effects and behavior. DOMView.js allows for these circular dependencies by providing two ways of accessing the resultant object: context parameters and capturing the ```DomView``` function's return value.
+
+There are many use cases where kinghfb's suggestion is more than enough, but if you need the additional debugging power and flexibility with the order in which things are declared, consider DOMView.js.
+
+## Criticism
+
+### DOMView.js is too tightly-coupled to the DOM
+
+Helpful Redditor incurious and others raised concerns about how tightly-coupled DOMView.js is with the DOM. It's true; DOMView.js *is* tightly-coupled to the DOM, but no moreso than raw jQuery. Consider this markup:
+
+```html
+<div class="container">
+    <table>
+        <tbody>
+            <tr class="row"><td><td></tr>
+            <tr class="row"><td><td></tr>
+        </tbody>
+    </table>
+<div>
+```
+
+If we are only interested in the table's rows, but not all the other parent elements, we write this code:
+
+```javascript
+DomView({
+    selector: ".container",
+    rows: ".row"
+});
+```
+
+The underlying markup can change quite a bit without affecting our selector object. We could decide to abandon the ```table``` element and switch to CSS tables, for example. Because DOMView.js uses jQuery's find method, it will find all ```row```s within ```container``` no matter how deeply the rows are nested.
+
+Of course, significant changes to markup will most likely impact our JavaScript no matter what frameworks we choose. DOMView.js' coupling to the DOM is the same as raw jQuery; DOMView.js simply makes it easier to represent jQuery hierarchically. It doesn't solve the DOM coupling problem.
 
 ## That's it!
 
