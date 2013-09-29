@@ -362,7 +362,7 @@ DomView({
 });
 ```
 
-The underlying markup can change quite a bit without affecting our selector object. We could decide to abandon the ```table``` element and switch to CSS tables, for example. Because DOMView.js uses jQuery's find method, it will find all ```row```s within ```container``` no matter how deeply the rows are nested.
+The underlying markup can change quite a bit without affecting our selector object. We could decide to abandon the ```table``` element and switch to CSS tables, for example. Because DOMView.js uses jQuery's ```find``` method, it will find all ```row```s within ```container``` no matter how deeply the rows are nested.
 
 Of course, significant changes to markup will most likely impact our JavaScript no matter what frameworks we choose. DOMView.js' coupling to the DOM is the same as raw jQuery; DOMView.js simply makes it easier to represent jQuery hierarchically. It doesn't solve the DOM coupling problem.
 
