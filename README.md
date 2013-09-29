@@ -269,7 +269,7 @@ DomView({
 });
 ```
 
-### Alternatives
+## Alternatives
 
 Helpful Redditor kinghfb suggested that the nesting technique can be accomplished with raw jQuery:
 
