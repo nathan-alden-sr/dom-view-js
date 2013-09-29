@@ -330,6 +330,36 @@ JavaScript often requires circular dependencies in order to achieve interesting 
 
 There are many use cases where kinghfb's suggestion is more than enough, but if you need the additional debugging power and flexibility with the order in which things are declared, consider DOMView.js.
 
+## Criticism
+
+### DOMView.js is too tightly-coupled to the DOM
+
+Helpful Redditor incurious and others raised concerns about how tightly-coupled DOMView.js is with the DOM. It's true; DOMView.js *is* tightly-coupled to the DOM, but no moreso than raw jQuery. Consider this markup:
+
+```html
+<div class="container">
+    <table>
+        <tbody>
+            <tr><td><td></tr>
+            <tr><td><td></tr>
+        </tbody>
+    </table>
+<div>
+```
+
+If we are only interested in the table's rows, but not all the other parent elements, we write this code:
+
+```javascript
+DomView({
+    selector: ".container",
+    rows: ".row"
+});
+```
+
+The underlying markup can change quite a bit without affecting our selector object. We could decide to abandon the ```table``` element and switch to CSS tables, for example. Because DOMView.js uses jQuery's find method, it will find all ```row```s within ```container``` no matter how deeply the rows are nested.
+
+Of course, significant changes to markup will most likely impact our JavaScript no matter what frameworks we choose. DOMView.js' coupling to the DOM is the same as raw jQuery; DOMView.js simply makes it easier to represent jQuery hierarchically. It doesn't solve the DOM coupling problem.
+
 ## That's it!
 
 If you have any questions, suggestions or bug reports, please file an issue. I'll try and respond promptly.
