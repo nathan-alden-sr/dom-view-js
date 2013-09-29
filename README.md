@@ -269,6 +269,25 @@ DomView({
 });
 ```
 
+### Alternatives
+
+Helpful Redditor kinghfb suggested that the nesting technique can be accomplished with raw jQuery:
+
+```javascript
+var container = $(".container"),
+	form = container.find("form")
+		.submit(function () { }),
+		age = form.find(".age");
+```
+
+This does visually represent the hierarchical nature of the DOM in JavaScript. However, there are a few notable differences:
+
+1. The variables must all be named differently because they are declared in the same scope, whereas with DOMView.js, property names are unique only to their containing object.
+2. Inline event handlers must be declared before additional "nested" variables, meaning they won't have access to objects on the same indent level.
+3. There is no hierarchical structure in memory, whereas with DOMView.js one can simply write the resultant object to the console and use the browser's developer tools to inspect the full hierarchy.
+
+There are many use cases where kinghfb's suggestion is more than enough, but if you need the additional debugging power and flexibility with the order in which things are declared, consider DOMView.js.
+
 ## That's it!
 
 If you have any questions, suggestions or bug reports, please file an issue. I'll try and respond promptly.
