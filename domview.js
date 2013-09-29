@@ -1,4 +1,4 @@
-// DOMView.js 1.1.0
+// DOMView.js 1.1.1
 
 // Created by Nathan Alden, Sr.
 // http://projects.nathanalden.com
@@ -8,6 +8,10 @@
 
 (function ($, undefined) {
 	function wrap(parentSelector, object) {
+		if (object === undefined || object === null) {
+			return undefined;
+		}
+	
 		// Treat the object as a selector object only if it has a selector property
 		if (!object.hasOwnProperty("selector")) {
 			return object;
