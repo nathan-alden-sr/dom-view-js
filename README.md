@@ -271,6 +271,8 @@ DomView({
 
 ## Alternatives
 
+### kinghfb's suggestion
+
 Helpful Redditor kinghfb suggested that the nesting technique can be accomplished with raw jQuery:
 
 ```javascript
@@ -285,6 +287,46 @@ This does visually represent the hierarchical nature of the DOM in JavaScript. H
 1. The variables must all be named differently because they are declared in the same scope, whereas with DOMView.js, property names are unique only to their containing object.
 2. Inline event handlers must be declared before additional "nested" variables, meaning they won't have access to objects on the same indent level.
 3. There is no hierarchical structure in memory, whereas with DOMView.js one can simply write the resultant object to the console and use the browser's developer tools to inspect the full hierarchy.
+4. There is no view object to be captured from within jQuery event handlers.
+
+For point #4, consider that the following code cannot be written solely using kinghfb's suggestion:
+
+```javascript
+var container = DomView({
+	selector: ".container",
+	form: {
+		selector: "form",
+		_submit: function () {
+			container.button.prop("disabled", true);
+		}
+	},
+	button: {
+		selector: ".button",
+		_click: function (context) {
+			context.form[0].submit();
+		}
+	}
+});
+```
+
+Written with raw jQuery, here's what we'd have:
+
+```javascript
+var container = $(".container"),
+	form = container.find("form"),
+		button = form.find(".button")
+			.click(function () {
+				form[0].submit();
+			});
+
+form.submit(function () {
+	button.prop("disabled", true);
+});
+```
+
+Note that using raw jQuery leads to the hierarchy being broken in this case.
+
+JavaScript often requires circular dependencies in order to achieve interesting effects and behavior. DOMView.js allows for these circular dependencies by providing two ways of accessing the resultant object: context parameters and capturing the ```DomView``` function's return value.
 
 There are many use cases where kinghfb's suggestion is more than enough, but if you need the additional debugging power and flexibility with the order in which things are declared, consider DOMView.js.
 
