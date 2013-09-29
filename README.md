@@ -29,7 +29,7 @@ Here's the markup that the above JavaScript represents:
 ```html
 <html>
 	<body>
-		<div class=".container">
+		<div class="container">
 			<input type="button">
 			<label></label>
 			<span class="name"></span>
