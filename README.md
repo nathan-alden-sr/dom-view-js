@@ -340,8 +340,8 @@ Helpful Redditor incurious and others raised concerns about how tightly-coupled 
 <div class="container">
     <table>
         <tbody>
-            <tr><td><td></tr>
-            <tr><td><td></tr>
+            <tr class="row"><td><td></tr>
+            <tr class="row"><td><td></tr>
         </tbody>
     </table>
 <div>
