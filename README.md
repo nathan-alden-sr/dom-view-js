@@ -342,7 +342,7 @@ var container = $(".container"),
 			});
 
 container.form.submit(function () {
-	button.prop("disabled", true);
+	container.form.button.prop("disabled", true);
 });
 ```
 
