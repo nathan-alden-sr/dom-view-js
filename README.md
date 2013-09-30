@@ -341,7 +341,7 @@ var container = $(".container"),
 				form[0].submit();
 			});
 
-form.submit(function () {
+container.form.submit(function () {
 	button.prop("disabled", true);
 });
 ```
