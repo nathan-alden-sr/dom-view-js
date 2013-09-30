@@ -1,4 +1,4 @@
-// DOMView.js 1.2.0
+// DOMView.js 1.2.1
 
 // Created by Nathan Alden, Sr.
 // http://projects.nathanalden.com
@@ -26,7 +26,7 @@
 				throw "init property must have a function value";
 			}
 			
-			object.init.call(childSelector);
+			object.init.call(childSelector, parentSelector || childSelector);
 		}
 		
 		for (var property in object) {

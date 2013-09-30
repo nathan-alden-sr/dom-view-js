@@ -115,6 +115,51 @@
 
 			strictEqual(object, container, "Parameter must be underlying jQuery object");
 		});
+
+		test("For root selector object, init property with function value must be invoked with with root context", function () {
+			var object;
+			var container = DomView({
+				selector: ".container",
+				init: function (context) {
+					object = this;
+				}
+			});
+
+			strictEqual(object, container, "Context must be root jQuery object");
+		});
+
+		test("For one-level-deep selector object, init property with function value must be invoked with with root context", function () {
+			var object;
+			var container = DomView({
+				selector: ".container",
+				levelOne: {
+					selector: ".level-one",
+					init: function (context) {
+						object = this;
+					}
+				}
+			});
+
+			strictEqual(object, container.levelOne, "Context must be root jQuery object");
+		});
+		
+		test("For two-level-deep selector object, init property with function value must be invoked with with parent context", function () {
+			var object;
+			var container = DomView({
+				selector: ".container",
+				levelOne: {
+					selector: ".level-one",
+					levelTwo: {
+						selector: ".level-two",
+						init: function (context) {
+							object = this;
+						}
+					}
+				}
+			});
+
+			strictEqual(object, container.levelOne.levelTwo, "Context must be parent jQuery object");
+		});
 		
 		test("Nested property with string value must result in the appropriate jQuery object", function () {
 			var container = DomView({
