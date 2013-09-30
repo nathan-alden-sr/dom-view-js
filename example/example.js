@@ -6,6 +6,9 @@
 				selector: ".links",
 				moreProjectsLink: {
 					selector: ".more-projects",
+					init: function () {
+						this.css("text-decoration", "none");
+					},
 					_click: function (context, e) {
 						if (!confirm("Are you sure you want to leave the example?")) {
 							e.preventDefault();
