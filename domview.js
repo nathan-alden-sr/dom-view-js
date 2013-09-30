@@ -1,4 +1,4 @@
-// DOMView.js 1.1.1
+// DOMView.js 1.2.0
 
 // Created by Nathan Alden, Sr.
 // http://projects.nathanalden.com
@@ -7,6 +7,8 @@
 // http://opensource.org/licenses/osl-2.1.php
 
 (function ($, undefined) {
+	var reservedPropertyNames = ["selector", "init"];
+
 	function wrap(parentSelector, object) {
 		if (object === undefined || object === null) {
 			return undefined;
@@ -19,9 +21,17 @@
 
 		var childSelector = parentSelector ? parentSelector.find(object.selector) : $(object.selector);
 		
+		if (object.hasOwnProperty("init") && object.init !== undefined && object.init !== null) {
+			if (typeof object.init !== "function") {
+				throw "init property must have a function value";
+			}
+			
+			object.init.call(childSelector);
+		}
+		
 		for (var property in object) {
-			// Skip the selector property
-			if (property === "selector") {
+			// Skip reserved properties
+			if (reservedPropertyNames.indexOf(property) > -1) {
 				continue;
 			}
 			
