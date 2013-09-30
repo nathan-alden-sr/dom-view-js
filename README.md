@@ -104,6 +104,22 @@ $(".container");
 
 This object instructs ```DomView``` to select elements matching the ```.container``` selector.
 
+### Initialization callback
+
+A selector object may define an ```init``` property with a function value. This function will be called just after the underlying jQuery object is created. Inside the function, ```this``` will be the underlying jQuery object. Here's an example:
+
+```javascript
+DomView({
+	selector: ".container",
+	init: function (context) { // context follows the same rules as with jQuery event handlers (see below)
+		console.log(this); // Outputs the jQuery object for .container
+		
+		this.on("click", "*", function () {
+		});
+	}
+});
+```
+
 ### Nested jQuery objects
 
 Next, we'll add our button as a property inside the root selector object:
