@@ -16,7 +16,7 @@
 			var object = {};
 			var view = DomView(object);
 			
-			strictEqual(object, view, "Return value must be selector object");
+			strictEqual(view, object, "Return value must be selector object");
 		});
 		
 		test("Root selector object with string selector property must return the appropriate jQuery object", function () {
@@ -25,7 +25,7 @@
 			});
 			
 			ok(container instanceof jQuery, "Return value must be jQuery instance");
-			strictEqual(1, container.length, "Return value's length must be 1");
+			strictEqual(container.length, 1, "Return value's length must be 1");
 			ok(container[0] instanceof HTMLDivElement, "Return value's element must be HTMLDivElement");
 			ok(container.hasClass("container"), "Return value's element must have container class");
 		});
@@ -36,7 +36,7 @@
 			});
 			
 			ok(container instanceof jQuery, "Return value must be jQuery instance");
-			strictEqual(1, container.length, "Return value's length must be 1");
+			strictEqual(container.length, 1, "Return value's length must be 1");
 			ok(container[0] instanceof HTMLDivElement, "Return value's element must be HTMLDivElement");
 			ok(container.hasClass("container"), "Return value's element must have container class");
 		});
@@ -104,63 +104,18 @@
 			}, "Must throw exception");
 		});
 		
-		test("init property with function value must have 'this' set to underlying jQuery object", function () {
-			var object;
+		test("init property with function value must have 'this' set to view object", function () {
+			var view;
 			var container = DomView({
 				selector: ".container",
 				init: function () {
-					object = this;
+					view = this;
 				}
 			});
 
-			strictEqual(object, container, "Parameter must be underlying jQuery object");
+			strictEqual(view, container, "'this' must be set to view object");
 		});
 
-		test("For root selector object, init property with function value must be invoked with with root context", function () {
-			var object;
-			var container = DomView({
-				selector: ".container",
-				init: function (context) {
-					object = this;
-				}
-			});
-
-			strictEqual(object, container, "Context must be root jQuery object");
-		});
-
-		test("For one-level-deep selector object, init property with function value must be invoked with with root context", function () {
-			var object;
-			var container = DomView({
-				selector: ".container",
-				levelOne: {
-					selector: ".level-one",
-					init: function (context) {
-						object = this;
-					}
-				}
-			});
-
-			strictEqual(object, container.levelOne, "Context must be root jQuery object");
-		});
-		
-		test("For two-level-deep selector object, init property with function value must be invoked with with parent context", function () {
-			var object;
-			var container = DomView({
-				selector: ".container",
-				levelOne: {
-					selector: ".level-one",
-					levelTwo: {
-						selector: ".level-two",
-						init: function (context) {
-							object = this;
-						}
-					}
-				}
-			});
-
-			strictEqual(object, container.levelOne.levelTwo, "Context must be parent jQuery object");
-		});
-		
 		test("Nested property with string value must result in the appropriate jQuery object", function () {
 			var container = DomView({
 				selector: ".container",
@@ -168,7 +123,7 @@
 			});
 			
 			ok(container.levelOne instanceof jQuery, "Return value must be jQuery instance");
-			strictEqual(1, container.levelOne.length, "Return value's length must be 1");
+			strictEqual(container.levelOne.length, 1, "Return value's length must be 1");
 			ok(container.levelOne[0] instanceof HTMLDivElement, "Return value's element must be HTMLDivElement");
 			ok(container.levelOne.hasClass("level-one"), "Return value's element must have level-one class");
 		});
@@ -180,7 +135,7 @@
 				levelOne: levelOne
 			});
 			
-			strictEqual(levelOne, container.levelOne, "Return value must be jQuery object");
+			strictEqual(container.levelOne, levelOne, "Return value must be jQuery object");
 		});
 
 		test("Nested property whose name begins with an underscore and with function value must treat function as jQuery event handler", function () {
@@ -193,11 +148,11 @@
 			var events = $._data(container[0]).events;
 			
 			ok(events.click, "Must attach function to click event");
-			strictEqual(1, events.click.length, "Must attach function once");
+			strictEqual(events.click.length, 1, "Must attach function once");
 			
 			events.click[0].handler();
 			
-			strictEqual(true, flag, "Must attach function");
+			strictEqual(flag, true, "Must attach function");
 			
 			unbindAllEvents();
 		});
@@ -210,10 +165,26 @@
 				}
 			});
 			
-			strictEqual("bar", container.foo, "Function's return value must be added");
+			ok(typeof container.foo === "function", "Property must be function");
+			strictEqual(container.foo(), "bar", "Function must return value");
 		});
 
-		test("'this' value attached jQuery event must be event's target", function () {
+		test("Return value of nested property whose name does not begin with an underscore and with function value must only be evaluated once", function () {
+			var count = 0;
+			var container = DomView({
+				selector: ".container",
+				foo: function () {
+					count++;
+				}
+			});
+			
+			container.foo();
+			container.foo();
+			
+			strictEqual(count, 1, "Function must only be evaluated once");
+		});
+		
+		test("'this' value for attached jQuery event must be event's target", function () {
 			var _this;
 			var container = DomView({
 				selector: ".container",
@@ -229,102 +200,37 @@
 			unbindAllEvents();
 		});
 
-		test("For root selector object, nested property whose name does not begin with an underscore and with function value must be supplied with root context", function () {
-			var fooContext;
+		test("Nested property whose name does not begin with an underscore and with function value must be supplied with view object", function () {
+			var _view;
 			var container = DomView({
 				selector: ".container",
-				foo: function (context) {
-					fooContext = context;
+				foo: function (view) {
+					_view = view;
 				}
 			});
 			
-			strictEqual(fooContext, container, "Context must be root jQuery object");
+			strictEqual(_view, container, "View object parameter must be same as return value");
 		});
 
-		test("For one-level-deep nested selector object, nested property whose name does not begin with an underscore and with function value must be supplied with nested context", function () {
-			var fooContext;
+		test("Attached jQuery function must be invoked with view object as first parameter and jQuery event parameters as subsequent parameters", function () {
+			var _view;
+			var _e;
 			var container = DomView({
 				selector: ".container",
-				oneLevel: {
-					selector: ".one-level",
-					foo: function (context) {
-						fooContext = context;
-					}
+				_click: function (view, e) {
+					_view = view;
+					_e = e;
 				}
-			});
-			
-			strictEqual(fooContext, container.oneLevel, "Context must be nested jQuery object");
-		});
-		
-		test("For root selector object, attached jQuery function must be invoked with root context as first parameter and jQuery event parameters as subsequent parameters", function () {
-			var eventHandlerContext;
-			var eventHandlerE;
-			var eventHandler = function (context, e) {
-				eventHandlerContext = context;
-				eventHandlerE = e;
-			}
-			var container = DomView({
-				selector: ".container",
-				_click: eventHandler
 			});
 			
 			container.trigger("click");
 			
-			strictEqual(eventHandlerContext, container, "Context must be root jQuery object");
-			strictEqual(eventHandlerE.type, "click", "e must be event object");
+			strictEqual(_view, container, "View object parameter must be same as return value");
+			strictEqual(_e.type, "click", "e must be event object");
 			
 			unbindAllEvents();
 		});
 
-		test("For one-level-deep nested selector object, attached jQuery function must be invoked with root context as first parameter and jQuery event parameters as subsequent parameters", function () {
-			var eventHandlerContext;
-			var eventHandlerE;
-			var eventHandler = function (context, e) {
-				eventHandlerContext = context;
-				eventHandlerE = e;
-			}
-			var container = DomView({
-				selector: ".container",
-				levelOne: {
-					selector: ".level-one",
-					_click: eventHandler
-				}
-			});
-			
-			container.levelOne.trigger("click");
-			
-			strictEqual(eventHandlerContext, container, "Context must be root jQuery object");
-			strictEqual(eventHandlerE.type, "click", "e must be event object");
-			
-			unbindAllEvents();
-		});
-
-		test("For two-level-deep nested selector object, attached jQuery function must be invoked with parent context as first parameter and jQuery event parameters as subsequent parameters", function () {
-			var eventHandlerContext;
-			var eventHandlerE;
-			var eventHandler = function (context, e) {
-				eventHandlerContext = context;
-				eventHandlerE = e;
-			}
-			var container = DomView({
-				selector: ".container",
-				levelOne: {
-					selector: ".level-one",
-					levelTwo: {
-						selector: ".level-two",
-						_click: eventHandler
-					}
-				}
-			});
-			
-			container.levelOne.levelTwo.trigger("click");
-			
-			strictEqual(eventHandlerContext, container.levelOne, "Context must be nested jQuery object");
-			strictEqual(eventHandlerE.type, "click", "e must be event object");
-			
-			unbindAllEvents();
-		});
-		
 		test("Nested object with selector property must be treated as selector object", function () {
 			var container = DomView({
 				selector: ".container",
@@ -334,7 +240,7 @@
 			});
 			
 			ok(container.levelOne instanceof jQuery, "Return value must be jQuery instance");
-			strictEqual(1, container.levelOne.length, "Return value's length must be 1");
+			strictEqual(container.levelOne.length, 1, "Return value's length must be 1");
 			ok(container.levelOne[0] instanceof HTMLDivElement, "Return value's element must be HTMLDivElement");
 			ok(container.levelOne.hasClass("level-one"), "Return value's element must have container class");
 		});
@@ -346,7 +252,7 @@
 				levelOne: object
 			});
 			
-			strictEqual(object, container.levelOne, "Nested object must be attached");
+			strictEqual(container.levelOne, object, "Nested object must be attached");
 		});
 
 		test("Nested property values of non-function, non-string, non-object types must be attached to returned object", function () {
@@ -359,10 +265,10 @@
 				faz: array
 			});
 			
-			strictEqual(0, container.foo, "Integer property value must be attached");
-			strictEqual(3.141592654, container.bar, "Floating-point property value must be attached");
-			strictEqual(true, container.baz, "Boolean property value must be attached");
-			strictEqual(array, container.faz, "Array property value must be attached");
+			strictEqual(container.foo, 0, "Integer property value must be attached");
+			strictEqual(container.bar, 3.141592654, "Floating-point property value must be attached");
+			strictEqual(container.baz, true, "Boolean property value must be attached");
+			strictEqual(container.faz, array, "Array property value must be attached");
 		});
 	});
 })(jQuery);
