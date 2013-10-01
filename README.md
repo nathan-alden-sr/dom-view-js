@@ -1,5 +1,7 @@
 # DOMView.js
 
+**Note that DOMView.js 1.x has a [critical design flaw](https://github.com/NathanAlden/DOMViewJS/issues/1) with regards to JavaScript property iteration being non-deterministic. Shortly, I will be releasing 2.0 to address this issue. Updated documentation will also be available at that time. Stay tuned!**
+
 Table of contents:
 * [Introduction](#tired-of-flat-unstructured-jquery)
 * [Getting Started](#getting-started-with-domviewjs)
