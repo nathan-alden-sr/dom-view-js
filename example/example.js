@@ -9,7 +9,7 @@
 					init: function () {
 						this.css("text-decoration", "none");
 					},
-					_click: function (context, e) {
+					_click: function (view, e) {
 						if (!confirm("Are you sure you want to leave the example?")) {
 							e.preventDefault();
 						}
@@ -21,15 +21,15 @@
 				firstNameChangedMessage: ".first-name-changed",
 				firstNameTextBox: {
 					selector: ".first-name",
-					_change: function (context, e) {
-						context.firstNameChangedMessage.show();
+					_change: function (view, e) {
+						view.demographicInformation.firstNameChangedMessage.show();
 					}
 				},
 				lastNameChangedMessage: ".last-name-changed",
 				lastNameTextBox: {
 					selector: ".last-name",
-					_change: function (context, e) {
-						context.lastNameChangedMessage.show();
+					_change: function (view, e) {
+						view.demographicInformation.lastNameChangedMessage.show();
 					}
 				},
 				maleGenderSelectedMessage: function () {
@@ -37,8 +37,8 @@
 				},
 				maleRadio: {
 					selector: ".male",
-					_click: function (context, e) {
-						context.fn.genderSelected(context.maleGenderSelectedMessage);
+					_click: function (view, e) {
+						view.demographicInformation.fn.genderSelected(view.demographicInformation.maleGenderSelectedMessage());
 					}
 				},
 				femaleGenderSelectedMessage: function () {
@@ -46,8 +46,8 @@
 				},
 				femaleRadio: {
 					selector: ".female",
-					_click: function (context, e) {
-						context.fn.genderSelected(context.femaleGenderSelectedMessage);
+					_click: function (view, e) {
+						view.demographicInformation.fn.genderSelected(view.demographicInformation.femaleGenderSelectedMessage());
 					}
 				},
 				fn: {
@@ -61,8 +61,8 @@
 				boxes: ".boxes",
 				addBoxButton: {
 					selector: ".add-box",
-					_click: function (context, e) {
-						context.fn.addBox();
+					_click: function (view, e) {
+						view.coolTools.fn.addBox();
 					}
 				},
 				fn: {
@@ -80,7 +80,7 @@
 				selector: ".reset",
 				resetEverythingButton: {
 					selector: ".reset-everything",
-					_click: function (context, e) {
+					_click: function (view, e) {
 						view.demographicInformation.firstNameChangedMessage.hide();
 						view.demographicInformation.firstNameTextBox.val("");
 						view.demographicInformation.lastNameChangedMessage.hide();
