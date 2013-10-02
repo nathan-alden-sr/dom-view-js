@@ -183,6 +183,21 @@
 			
 			strictEqual(count, 1, "Function must only be evaluated once");
 		});
+
+		test("`this` value of nested property whose name does not begin with an underscore and with function value must be its parent jQuery object", function () {
+			var _this;
+			var container = DomView({
+				selector: ".container",
+				levelOne: {
+					selector: ".level-one",
+					foo: function () {
+						_this = this;
+					}
+				}
+			});
+			
+			strictEqual(_this, container.levelOne, "`this` must be parent jQuery object");
+		});
 		
 		test("'this' value for attached jQuery event must be event's target", function () {
 			var _this;

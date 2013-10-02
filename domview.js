@@ -24,7 +24,7 @@
 	
 	function deferFunctionResolution(deferredFunctions, childSelector, property, propertyValue) {
 		var wrapper = function (view) {
-			return propertyValue.call(view, view);
+			return propertyValue.call(childSelector, view);
 		};
 
 		// Assign the wrapper function to the view property
