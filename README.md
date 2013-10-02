@@ -252,26 +252,18 @@ As with jQuery event handlers, custom functions are not evaluated immediately; i
 
 It is important to note that the custom function's return value is not placed directly into the view object. In the above example, ```view.button``` is actually a wrapper function created internally by DOMView.js. The wrapper function ensures that the real function is only evaluated once and its value cached for each subsequent evaluation.
 
-The wrapper function allows for circular references within custom functions:
-
 ```javascript
 var view = DomView({
 	selector: ".container",
 	button: {
 		selector: "input[type='button']",
-		invoke: function (view) {
-			view.form.disable();
-		},
 		disable: function (view) {
 			this.prop("disabled", true);
+			this.attr("value", view.message()); // Calls the wrapper function, not the real function defined below
 		}
 	},
-	form: {
-		selector: "form",
-		disable: function (view) {
-			this.addClass("disabled"); 
-			view.button.disable();
-		}
+	message: function () { // Only called once with its return value cached for subsequent wrapper function evaluations
+		return "Disabled!";
 	}
 });
 ```
