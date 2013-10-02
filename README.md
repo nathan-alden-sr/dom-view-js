@@ -15,6 +15,7 @@ Table of contents:
 * Replaced flawed context design with deferred function evaluation design
 * View properties derived from selector properties with function values must now be invoked as functions
 * Context parameters replaced with view parameters; parameter now represents entire view instead of parent context
+* Extensive documentation changes
 
 #### 1.x (deprecated)
 
