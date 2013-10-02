@@ -1,12 +1,24 @@
 # DOMView.js
 
-**Note that DOMView.js 1.x has a [critical design flaw](https://github.com/NathanAlden/DOMViewJS/issues/1) with regards to JavaScript property iteration being non-deterministic. Shortly, I will be releasing 2.0 to address this issue. Updated documentation will also be available at that time. Stay tuned!**
-
 Table of contents:
+* [Version history](#version-history)
 * [Introduction](#tired-of-flat-unstructured-jquery)
-* [Getting Started](#getting-started-with-domviewjs)
+* [Getting started](#getting-started-with-domviewjs)
 * [Alternatives](#alternatives)
 * [Criticism](#criticism)
+ 
+## Version history
+
+#### 2.0.0
+
+* Released 2013-10-01
+* Replaced flawed context design with deferred function evaluation design
+* View properties derived from selector properties with function values must now be invoked as functions
+* Context parameters replaced with view parameters; parameter now represents entire view instead of parent context
+
+#### 1.x (deprecated)
+
+* Released 2013-09-27
 
 ## Tired of flat, unstructured jQuery?
 
@@ -81,7 +93,7 @@ var view = DomView({
 });
 ```
 
-The resultant view object is organized of jQuery objects in exactly the structure we specify. For example, to clear the value of the age text box, we can write ```view.form.age.val("");```.
+The view object is organized of jQuery objects in exactly the structure we specify. For example, to clear the value of the age text box, we can write ```view.form.age.val("");```.
 
 ```view.form.age``` is a jQuery object just as if we had declared it as ```$(".container").find("form").find(".age")```, only now, the *hierarchical relationships between our jQuery objects are preserved*, creating more readable, more maintainable code.
 
@@ -100,7 +112,7 @@ DomView({
 	selector: ".container"
 });
 
-// Equivalent code:
+// Raw jQuery:
 $(".container");
 ```
 
@@ -108,12 +120,12 @@ This object instructs ```DomView``` to select elements matching the ```.containe
 
 ### Initialization callback
 
-A selector object may define an ```init``` property with a function value. This function will be called just after the underlying jQuery object is created. Inside the function, ```this``` will be the underlying jQuery object. Here's an example:
+A selector object may define an ```init``` property with a function value. This function will be called just after the underlying jQuery object is created. Inside the function, ```this``` will be the underlying jQuery object:
 
 ```javascript
 DomView({
 	selector: ".container",
-	init: function (context) { // context follows the same rules as with jQuery event handlers (see below)
+	init: function () {
 		console.log(this); // Outputs the jQuery object for .container
 		
 		this.on("click", "*", function () {
@@ -121,6 +133,8 @@ DomView({
 	}
 });
 ```
+
+Note that ```init``` is called as soon as it is encountered by DOMView.js. It is not provided with a fully-processed view object. The intent of the ```init``` function is simply to process the parent jQuery object in some way.
 
 ### Nested jQuery objects
 
@@ -132,7 +146,7 @@ DomView({
 	button: "input[type='button']"
 });
 
-// Equivalent code:
+// Raw jQuery:
 var $container = $(".container");
 var $button = $container.find("input[type='button']");
 ```
@@ -152,7 +166,7 @@ DomView({
 	}
 });
 
-// Equivalent code:
+// Raw jQuery:
 var $container = $(".container");
 var $button = $container.find("input[type='button']");
 var $label = $container.find("label");
@@ -183,83 +197,83 @@ DomView({
 
 Note that the button property no longer has a string selector value; instead, we created a second selector object that also contains a click event handler. To hook up an event handler using any jQuery event handler function, simply prepend an ```_``` to the name of the event handler function.
 
-DOMView.js doesn't hook up our event handler function directly; instead, it wraps it in an internal function. This internal function calls our function and passes the parent selector object as the first parameter and any arguments from the internal function call as the remaining parameters. For the root selector object, the context is the root object itself. Here's an example demonstrating what context represents:
+Our jQuery event handlers aren't attached to their objects when the ```DomView``` function comes across them; instead, the attaching is deferred until after the entire root selector object graph has been processed. This allows the fully-processed view object to be provided to the event handler function as the first parameter.
+
+DOMView.js doesn't hook up our event handler function directly; instead, it wraps it in an internal function. This internal function calls our function and passes the fully-processed view object as the first parameter and any arguments from the internal function call as the remaining parameters. Here's a more complex example:
 
 ```javascript
 DomView({
 	selector: ".container",
-	_click: function (context, e) {
-		console.log(this); // Outputs the HTML element for .container (normal jQuery functionality)
-		console.log(context); // Outputs the jQuery object for .container
+	_click: function (view, e) {
+		console.log(this); // Outputs the HTML element for .container (normal jQuery functionality for event handlers)
+		console.log(view); // Outputs the fully-processed view object (the same object returned by the DomView function
 	},
 	button: {
 		selector: "input[type='button']",
-		_click: function (context, e) {
+		_click: function (view, e) {
 			console.log(this); // Outputs the HTML element for input[type='button']
-			console.log(context); // Outputs the jQuery object for .container
+			console.log(view); // Outputs the fully-processed view object
 		}
 	},
 	form: {
 		selector: "form",
 		age: {
 			selector: ".age",
-			_click: function (context, e) {
+			_click: function (view, e) {
 				console.log(this); // Outputs the HTML element for .age
-				console.log(context); // Outputs the jQuery object for form
+				console.log(view); // Outputs the fully-processed view object
 			}
 		}
 	}
 });
 ```
 
-The ```context``` parameter is useful for accessing sibling jQuery objects. If we need to access other objects in the hierarchy, we can use the captured ```DomView``` function return value:
+### Using custom functions for property values
+
+Sometimes it is desirable to use a *custom function* that provide's a property's value:
 
 ```javascript
 var view = DomView({
 	selector: ".container",
-	button: "input[type='button']",
-	form: {
-		selector: "form",
-		age: {
-			selector: ".age",
-			_click: function () {
-				console.log(view.button); // Outputs the jQuery object for input[type='button']
-			}
-		}
-	}
-});
-```
-
-### Using functions for property values
-
-Sometimes it is desirable to add a property that isn't a jQuery object. To do this, specify a function instead of a string selector:
-
-```javascript
-var view = DomView({
-	selector: ".container",
-	button: function (context) {
+	button: function (view) {
+		console.log(this); // Outputs the jQuery object for .container
+		
 		return "Hello, world!"
 	}
 });
 
-console.log(view.button); // Outputs "Hello, world!"
+console.log(view.button()); // Outputs "Hello, world!"
 ```
 
-Functions may return data of any type, from instances of jQuery plugins to jQuery objects to simple data types.
+Functions may return any data type (including undefined and null). ```this``` is set to the parent jQuery object.
 
-Note how DOMView.js provides these functions with a context. The rules for ```context```'s value are the same as above; however, there is one important distinction. Because these functions are invoked during the building of the object returned by the ```DomView``` function, any properties declared *after* the function's property will not yet be available. For example:
+As with jQuery event handlers, custom functions are not evaluated immediately; instead, evaluation is deferred until after the entire root selector object graph has been processed. This allows the fully-processed view object to be provided to the function as the first parameter.
+
+It is important to note that the custom function's return value is not placed directly into the view object. In the above example, ```view.button``` is actually a wrapper function created internally by DOMView.js. The wrapper function ensures that the real function is only evaluated once and its value cached for each subsequent evaluation.
+
+The wrapper function allows for circular references within custom functions:
 
 ```javascript
-DomView({
+var view = DomView({
 	selector: ".container",
-	labelText: function (context) {
-		return context.label.text(); // Throws an exception because the label property has not yet been processed
+	button: {
+		selector: "input[type='button']",
+		invoke: function (view) {
+			view.form.disable();
+		},
+		disable: function (view) {
+			this.prop("disabled", true);
+		}
 	},
-	label: "label"
+	form: {
+		selector: "form",
+		disable: function (view) {
+			this.addClass("disabled"); 
+			view.button.disable();
+		}
+	}
 });
 ```
-
-Make sure the selector object's properties are declared in the appropriate order.
 
 ### Non-selector object property values
 
@@ -275,22 +289,27 @@ DomView({
 	},
 	button: {
 		selector: "input[type='button']",
-		_click: function (context) {
-			alert(context.fn.helloWorld());
+		_click: function (view) {
+			alert(view.fn.helloWorld());
 		}
 	}
 });
 ```
+The object for the ```fn``` property will be copied as-is into the view object.
+
 ### Other custom property values
 
-Any property values that don't meet the above criteria are copied into the resultant object.
+Any property values that don't meet the above criteria are copied as-is into the view object.
 
 ```javascript
-DomView({
+var view = DomView({
 	selector: ".container",
 	foo: 1,
 	pi: 3.141592654
 });
+
+console.log(view.foo); // Outputs 1
+console.log(view.pi); // Outputs 3.141592654
 ```
 
 ## Alternatives
@@ -310,24 +329,24 @@ This does visually represent the hierarchical nature of the DOM in JavaScript. H
 
 1. The variables must all be named differently because they are declared in the same scope, whereas with DOMView.js, property names are unique only to their containing object.
 2. Inline event handlers must be declared before additional "nested" variables, meaning they won't have access to objects on the same indent level.
-3. There is no hierarchical structure in memory, whereas with DOMView.js one can simply write the resultant object to the console and use the browser's developer tools to inspect the full hierarchy.
-4. There is no view object to be captured from within jQuery event handlers.
+3. There is no hierarchical structure in memory, whereas with DOMView.js one can simply write the view object to the console and use the browser's developer tools to inspect the hierarchy.
+4. There is no view object to be captured from within jQuery event handlers and custom functions.
 
 For point #4, consider that the following code cannot be written solely using kinghfb's suggestion:
 
 ```javascript
-var container = DomView({
+DomView({
 	selector: ".container",
 	form: {
 		selector: "form",
-		_submit: function () {
-			container.button.prop("disabled", true);
+		_submit: function (view) {
+			view.button.prop("disabled", true);
 		}
 	},
 	button: {
 		selector: ".button",
-		_click: function (context) {
-			context.form[0].submit();
+		_click: function (view) {
+			view.form[0].submit();
 		}
 	}
 });
@@ -348,11 +367,11 @@ container.form.submit(function () {
 });
 ```
 
-Note that using raw jQuery leads to the hierarchy being broken in this case.
+Using raw jQuery leads to the hierarchy being broken in this case.
 
-JavaScript often requires circular dependencies in order to achieve interesting effects and behavior. DOMView.js allows for these circular dependencies by providing two ways of accessing the resultant object: context parameters and capturing the ```DomView``` function's return value.
+JavaScript often requires circular dependencies in order to achieve interesting effects and behavior. DOMView.js allows for these circular dependencies by providing the fully-processed view object as the first parameter to jQuery event handlers and custom functions.
 
-There are many use cases where kinghfb's suggestion is more than enough, but if you need the additional debugging power and flexibility with the order in which things are declared, consider DOMView.js.
+There are many use cases where kinghfb's suggestion is more than enough, but if you need the additional debugging power and circular references, consider DOMView.js.
 
 ## Criticism
 
