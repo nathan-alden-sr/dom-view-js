@@ -9,6 +9,12 @@ Table of contents:
  
 ## Version history
 
+#### 2.0.1
+
+* Released 2013-10-05
+* Custom functions are now properly provided with view object
+* Removed unnecessary "deferred" architecture
+
 #### 2.0.0
 
 * Released 2013-10-01
@@ -198,9 +204,7 @@ DomView({
 
 Note that the button property no longer has a string selector value; instead, we created a second selector object that also contains a click event handler. To hook up an event handler using any jQuery event handler function, simply prepend an ```_``` to the name of the event handler function.
 
-Our jQuery event handlers aren't attached to their objects when the ```DomView``` function comes across them; instead, the attaching is deferred until after the entire root selector object graph has been processed. This allows the fully-processed view object to be provided to the event handler function as the first parameter.
-
-DOMView.js doesn't hook up our event handler function directly; instead, it wraps it in an internal function. This internal function calls our function and passes the fully-processed view object as the first parameter and any arguments from the internal function call as the remaining parameters. Here's a more complex example:
+Our jQuery event handlers are attached to their objects with a wrapper function. The view object is captured by this wrapper function, meaning when the event handler is called by jQuery, the fully-processed view object will be provided as the first parameter. Here's a more complex example:
 
 ```javascript
 DomView({
@@ -238,6 +242,7 @@ var view = DomView({
 	selector: ".container",
 	button: function (view) {
 		console.log(this); // Outputs the jQuery object for .container
+		console.log(view); // Outputs the fully-processed view object
 		
 		return "Hello, world!"
 	}
@@ -248,7 +253,7 @@ console.log(view.button()); // Outputs "Hello, world!"
 
 Functions may return any data type (including undefined and null). ```this``` is set to the parent jQuery object.
 
-As with jQuery event handlers, custom functions are not evaluated immediately; instead, evaluation is deferred until after the entire root selector object graph has been processed. This allows the fully-processed view object to be provided to the function as the first parameter.
+As with jQuery event handlers, custom functions are wrapped, allowing the fully-processed view object to be provided to the function as the first parameter.
 
 It is important to note that the custom function's return value is not placed directly into the view object. In the above example, ```view.button``` is actually a wrapper function created internally by DOMView.js. The wrapper function ensures that the real function is only evaluated once and its value cached for each subsequent evaluation.
 
