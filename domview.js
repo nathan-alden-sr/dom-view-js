@@ -1,4 +1,4 @@
-// DOMView.js 2.0.1
+// DOMView.js 2.0.2
 
 // Created by Nathan Alden, Sr.
 // http://projects.nathanalden.com
@@ -35,9 +35,14 @@
 
 		// Assign the wrapper function to the view property
 		childSelector[property] = wrapper;
+		
+		// Return a function that can be used to initialize the cached result
+		return function() {
+			childSelector[property](view);
+		};
 	}
 
-	function wrap(view, parentSelector, object) {
+	function wrap(view, parentSelector, object, functions) {
 		if (object === undefined || object === null) {
 			return undefined;
 		}
@@ -104,10 +109,10 @@
 				} else {
 					// The property is a function whose return value is used as the property value
 
-					wrapCustomFunction(view, childSelector, property, propertyValue);
+					functions.push(wrapCustomFunction(view, childSelector, property, propertyValue));
 				}
 			} else if (propertyValueIsObject) {
-				childSelector[property] = wrap(view, childSelector, propertyValue);
+				childSelector[property] = wrap(view, childSelector, propertyValue, functions);
 			} else {
 				// Copy, without modification, property values whose data types are unknown
 
@@ -119,6 +124,13 @@
 	}
 
 	window.DomView = function (object) {
-		return wrap(undefined, undefined, object);
+		var functions = [];
+		var view = wrap(undefined, undefined, object, functions);
+		
+		for (var i = 0; i < functions.length; i++) {
+			functions[i](view);
+		}
+		
+		return view;
 	};
 })(jQuery);

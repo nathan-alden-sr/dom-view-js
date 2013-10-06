@@ -196,8 +196,6 @@
 				}
 			});
 			
-			container.levelOne.foo();
-			
 			strictEqual(_this, container.levelOne, "'this' must be parent jQuery object");
 		});
 		
@@ -225,8 +223,6 @@
 					_view = view;
 				}
 			});
-			
-			container.foo();
 			
 			strictEqual(_view, container, "View object parameter must be same as return value");
 		});
@@ -301,8 +297,6 @@
 					return view;
 				}
 			});
-			
-			view.foo();
 			
 			strictEqual(_bar, view, "View must be provided to second custom function");
 		});
