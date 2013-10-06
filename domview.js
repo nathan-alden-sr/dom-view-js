@@ -1,4 +1,4 @@
-// DOMView.js 2.0.0
+// DOMView.js 2.0.1
 
 // Created by Nathan Alden, Sr.
 // http://projects.nathanalden.com
@@ -9,41 +9,35 @@
 (function ($, undefined) {
 	var reservedPropertyNames = ["selector", "init"];
 
-	function deferJQueryEventHandlerAssignment(deferredFunctions, childSelector, eventName, propertyValue) {
-		deferredFunctions.push(function (view) {
-			childSelector.on(eventName, function () {
-				var args = $.makeArray(arguments);
+	function wrapJQueryEventHandler(view, childSelector, eventName, propertyValue) {
+		childSelector.on(eventName, function () {
+			var args = $.makeArray(arguments);
 
-				// Add the view object to the beginning of the args array
-				args.splice(0, 0, view);
+			// Add the view object to the beginning of the args array
+			args.splice(0, 0, view);
 
-				propertyValue.apply(this, args);
-			});
+			propertyValue.apply(this, args);
 		});
 	}
-	
-	function deferFunctionResolution(deferredFunctions, childSelector, property, propertyValue) {
-		var wrapper = function (view) {
-			return propertyValue.call(childSelector, view);
+
+	function wrapCustomFunction(view, childSelector, property, propertyValue) {
+		var wrapper = function () {
+			// Retrieve the property's value
+			var result = propertyValue.call(childSelector, view);
+
+			// Create a new wrapper function that caches the result and overwrite the old wrapper function
+			childSelector[property] = function () {
+				return result;
+			};
+
+			return result;
 		};
 
 		// Assign the wrapper function to the view property
 		childSelector[property] = wrapper;
-
-		deferredFunctions.push(function (view) {
-			if (childSelector[property] === wrapper) {
-				// Retrieve the view property's value if it has not yet been retrieved
-				var result = childSelector[property](view);
-				
-				// Return the resolved value from another wrapper function
-				childSelector[property] = function () {
-					return result;
-				};
-			}
-		});
 	}
 
-	function wrap(parentSelector, object, deferredFunctions) {
+	function wrap(view, parentSelector, object) {
 		if (object === undefined || object === null) {
 			return undefined;
 		}
@@ -53,7 +47,13 @@
 			return object;
 		}
 
-		var childSelector = parentSelector ? parentSelector.find(object.selector) : $(object.selector);
+		var childSelector;
+		
+		if (parentSelector) {
+			childSelector = parentSelector.find(object.selector);
+		} else {
+			view = childSelector = $(object.selector);
+		}
 
 		if (object.hasOwnProperty("init") && object.init !== undefined && object.init !== null) {
 			if (typeof object.init !== "function") {
@@ -100,16 +100,14 @@
 
 					var eventName = property.substring(1);
 
-					// Defer hooking up the jQuery event handler until after view construction 
-					deferJQueryEventHandlerAssignment(deferredFunctions, childSelector, eventName, propertyValue);
+					wrapJQueryEventHandler(view, childSelector, eventName, propertyValue);
 				} else {
 					// The property is a function whose return value is used as the property value
 
-					// Defer resolving the function until after view construction 
-					deferFunctionResolution(deferredFunctions, childSelector, property, propertyValue);
+					wrapCustomFunction(view, childSelector, property, propertyValue);
 				}
 			} else if (propertyValueIsObject) {
-				childSelector[property] = wrap(childSelector, propertyValue, deferredFunctions);
+				childSelector[property] = wrap(view, childSelector, propertyValue);
 			} else {
 				// Copy, without modification, property values whose data types are unknown
 
@@ -121,13 +119,6 @@
 	}
 
 	window.DomView = function (object) {
-		var deferredFunctions = [];
-		var view = wrap(undefined, object, deferredFunctions);
-
-		for (var i = 0; i < deferredFunctions.length; i++) {
-			deferredFunctions[i](view);
-		}
-
-		return view;
+		return wrap(undefined, undefined, object);
 	};
 })(jQuery);

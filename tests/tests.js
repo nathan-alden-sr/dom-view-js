@@ -184,7 +184,7 @@
 			strictEqual(count, 1, "Function must only be evaluated once");
 		});
 
-		test("`this` value of nested property whose name does not begin with an underscore and with function value must be its parent jQuery object", function () {
+		test("'this' value of nested property whose name does not begin with an underscore and with function value must be its parent jQuery object", function () {
 			var _this;
 			var container = DomView({
 				selector: ".container",
@@ -196,7 +196,9 @@
 				}
 			});
 			
-			strictEqual(_this, container.levelOne, "`this` must be parent jQuery object");
+			container.levelOne.foo();
+			
+			strictEqual(_this, container.levelOne, "'this' must be parent jQuery object");
 		});
 		
 		test("'this' value for attached jQuery event must be event's target", function () {
@@ -223,6 +225,8 @@
 					_view = view;
 				}
 			});
+			
+			container.foo();
 			
 			strictEqual(_view, container, "View object parameter must be same as return value");
 		});
@@ -284,6 +288,23 @@
 			strictEqual(container.bar, 3.141592654, "Floating-point property value must be attached");
 			strictEqual(container.baz, true, "Boolean property value must be attached");
 			strictEqual(container.faz, array, "Array property value must be attached");
+		});
+		
+		test("Custom functions must be provided with view when called by other custom functions", function () {
+			var _bar;
+			var view = DomView({
+				selector: ".container",
+				foo: function (view) {
+					_bar = view.bar();
+				},
+				bar: function (view) {
+					return view;
+				}
+			});
+			
+			view.foo();
+			
+			strictEqual(_bar, view, "View must be provided to second custom function");
 		});
 	});
 })(jQuery);
