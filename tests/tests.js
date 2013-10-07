@@ -300,5 +300,38 @@
 			
 			strictEqual(_bar, view, "View must be provided to second custom function");
 		});
+		
+		test("Selector objects whose init function returns false should cause the selector object to not be added to its parent", function () {
+			var view = DomView({
+				selector: ".container",
+				init: function () {
+					return false;
+				}
+			});
+			
+			strictEqual(view, undefined, "View must be undefined");
+			
+			view = DomView({
+				selector: ".container",
+				levelOne: {
+					selector: ".level-one",
+					init: function () {
+						return false;
+					}
+				}
+			});
+			
+			strictEqual(view.levelOne, undefined, "Nested object must be undefined");
+		});
+
+		test("Selector objects whose init function returns nothing should cause the selector object to be added to its parent", function () {
+			var view = DomView({
+				selector: ".container",
+				init: function () {
+				}
+			});
+			
+			notStrictEqual(view, undefined, "View must not be undefined");
+		});
 	});
 })(jQuery);
