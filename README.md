@@ -9,6 +9,11 @@ Table of contents:
  
 ## Version history
 
+#### 2.1.0
+
+* Released 2013-10-07
+* Returning ```false``` in the ```init``` function now causes that selector object to be ignored
+
 #### 2.0.2
 
 * Released 2013-10-05
@@ -85,7 +90,7 @@ Here's the above JavaScript re-written to use DOMView.js, instead:
 var view = DomView({
 	selector: ".container",
 	button: {
-		selector: "button",
+		selector: "input[type='button']",
 		_click: function () {
 		}
 	},
@@ -143,6 +148,31 @@ DomView({
 ```
 
 Note that ```init``` is called as soon as it is encountered by DOMView.js. It is not provided with a fully-processed view object. The intent of the ```init``` function is simply to process the parent jQuery object in some way.
+
+Sometimes, it may be necessary to prevent adding a selector object to the view (e.g., if a certain flag is set in the JavaScript, if a query string field value has a certain value, etc.) We can return ```false``` in the init function to prevent its selector object from being added:
+
+```javascript
+var view = DomView({
+	selector: ".container",
+	init: function () {
+		return false;
+	}
+});
+// view is undefined
+```
+
+```javascript
+var view = DomView({
+	selector: ".container",
+	button: {
+		selector: "input[type='button']",
+		init: function () {
+			return false;
+		}
+	}
+});
+// view.button is undefined
+```
 
 ### Nested jQuery objects
 
