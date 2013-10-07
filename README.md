@@ -9,11 +9,12 @@ Table of contents:
  
 ## Version history
 
-#### 2.0.1
+#### 2.0.2
 
 * Released 2013-10-05
 * Custom functions are now properly provided with view object
 * Removed unnecessary "deferred" architecture
+* All custom functions are now called once, before the view object is returned
 
 #### 2.0.0
 
